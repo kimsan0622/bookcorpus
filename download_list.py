@@ -4,20 +4,29 @@ import sys
 import time
 import re
 
-try:
-    from cookielib import CookieJar
-    cj = CookieJar()
-    import urllib2
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    import urllib
-    urlretrieve = urllib.urlretrieve
-except ImportError:
-    import http.cookiejar
-    cj = http.cookiejar.CookieJar()
-    import urllib
-    opener = urllib.request.build_opener(
-        urllib.request.HTTPCookieProcessor(cj))
-    urlretrieve = urllib.request.urlretrieve
+
+import http.cookiejar
+cj = http.cookiejar.CookieJar()
+import urllib
+opener = urllib.request.build_opener(
+    urllib.request.HTTPCookieProcessor(cj))
+urlretrieve = urllib.request.urlretrieve
+
+
+# try:
+#     from cookielib import CookieJar
+#     cj = CookieJar()
+#     import urllib2
+#     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+#     import urllib
+#     urlretrieve = urllib.urlretrieve
+# except ImportError:
+#     import http.cookiejar
+#     cj = http.cookiejar.CookieJar()
+#     import urllib
+#     opener = urllib.request.build_opener(
+#         urllib.request.HTTPCookieProcessor(cj))
+#     urlretrieve = urllib.request.urlretrieve
 
 from bs4 import BeautifulSoup
 
@@ -60,7 +69,10 @@ def main():
         time.sleep(SLEEP_SEC)
         for try_count in range(MAX_OPEN_COUNT):
             try:
-                response = opener.open(s_url)
+                hdr = {'User-Agent':'Mozilla/5.0', 'referer':'https://www.smashwords.com'}
+                req = urllib.request.Request(s_url, headers=hdr)
+                response = opener.open(req)
+                #response = opener.open(s_url)
                 if try_count >= 1:
                     sys.stderr.write('Succeeded in opening {}\n'.format(s_url))
                 break  # success
@@ -80,7 +92,10 @@ def main():
             b_url = b_link.get('href')
             for try_count in range(MAX_OPEN_COUNT):
                 try:
-                    response = opener.open(b_url)
+                    hdr = {'User-Agent':'Mozilla/5.0', 'referer':'https://www.smashwords.com'}
+                    req = urllib.request.Request(b_url, headers=hdr)
+                    response = opener.open(req)
+                    #response = opener.open(b_url)
                     if try_count >= 1:
                         sys.stderr.write(
                             'Succeeded in opening {}\n'.format(b_url))
