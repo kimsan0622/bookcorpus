@@ -4,7 +4,7 @@ import sys
 import time
 import re
 
-
+import ssl
 import http.cookiejar
 cj = http.cookiejar.CookieJar()
 import urllib
@@ -70,8 +70,9 @@ def main():
         for try_count in range(MAX_OPEN_COUNT):
             try:
                 hdr = {'User-Agent':'Mozilla/5.0', 'referer':'https://www.smashwords.com'}
+                context = ssl._create_unverified_context()
                 req = urllib.request.Request(s_url, headers=hdr)
-                response = opener.open(req)
+                response = urllib.request.urlopen(req, context=context)
                 #response = opener.open(s_url)
                 if try_count >= 1:
                     sys.stderr.write('Succeeded in opening {}\n'.format(s_url))
@@ -93,8 +94,9 @@ def main():
             for try_count in range(MAX_OPEN_COUNT):
                 try:
                     hdr = {'User-Agent':'Mozilla/5.0', 'referer':'https://www.smashwords.com'}
+                    context = ssl._create_unverified_context()
                     req = urllib.request.Request(b_url, headers=hdr)
-                    response = opener.open(req)
+                    response = urllib.request.urlopen(req, context=context)
                     #response = opener.open(b_url)
                     if try_count >= 1:
                         sys.stderr.write(
