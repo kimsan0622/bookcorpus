@@ -3,20 +3,28 @@
 import argparse
 import time
 
-try:
-    from cookielib import CookieJar
-    cj = CookieJar()
-    import urllib2
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    import urllib
-    urlretrieve = urllib.urlretrieve
-except ImportError:
-    import http.cookiejar
-    cj = http.cookiejar.CookieJar()
-    import urllib
-    opener = urllib.request.build_opener(
-        urllib.request.HTTPCookieProcessor(cj))
-    urlretrieve = urllib.request.urlretrieve
+import ssl
+import http.cookiejar
+cj = http.cookiejar.CookieJar()
+import urllib
+opener = urllib.request.build_opener(
+    urllib.request.HTTPCookieProcessor(cj))
+urlretrieve = urllib.request.urlretrieve
+
+# try:
+#     from cookielib import CookieJar
+#     cj = CookieJar()
+#     import urllib2
+#     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+#     import urllib
+#     urlretrieve = urllib.urlretrieve
+# except ImportError:
+#     import http.cookiejar
+#     cj = http.cookiejar.CookieJar()
+#     import urllib
+#     opener = urllib.request.build_opener(
+#         urllib.request.HTTPCookieProcessor(cj))
+#     urlretrieve = urllib.request.urlretrieve
 
 import epub2txt
 import os
@@ -89,7 +97,11 @@ def main():
                 # try to download .txt file
                 for try_count in range(MAX_OPEN_COUNT):
                     try:
-                        response = opener.open(data['txt'])
+                        hdr = {'User-Agent':'Mozilla/5.0', 'referer':'https://www.smashwords.com'}
+                        context = ssl._create_unverified_context()
+                        req = urllib.request.Request(data['txt'], headers=hdr)
+                        response = urllib.request.urlopen(req, context=context)
+                        # response = opener.open(data['txt'])
                         if try_count >= 1:
                             sys.stderr.write(
                                 'Succeeded in opening {}\n'.format(data['txt']))
